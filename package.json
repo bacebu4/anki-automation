@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "bun-types": "latest"
+    "@types/node": "^20.8.6"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -12,5 +12,9 @@
     "@kreisler/js-google-translate-free": "^2.1.0",
     "@pionir/preslovljivac": "^3.0.6",
     "google-tts-api": "^2.0.2"
+  },
+  "scripts": {
+    "start": "tsc --build . && node ./build/index.js",
+    "build": "tsc --build ."
   }
 }

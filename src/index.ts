@@ -1,6 +1,8 @@
 import jsGoogleTranslateFree from '@kreisler/js-google-translate-free';
 import preslovi from '@pionir/preslovljivac';
+import { readFile, writeFile } from 'fs/promises';
 import * as googleTTS from 'google-tts-api';
+import { setTimeout } from 'node:timers/promises';
 
 const load = async ({
   filePath,
@@ -28,9 +30,7 @@ const load = async ({
     process.exit(1);
   }
 
-  const content = await Bun.file(filePath)
-    .text()
-    .catch(() => undefined);
+  const content = await readFile(filePath, 'utf-8');
 
   if (!content) {
     console.log(`❌ File not exists or empty. Exiting`);
@@ -78,9 +78,9 @@ const load = async ({
 
     console.log(`⏳ "${singleToTranslate}" –-> "${translated}" ...`);
 
-    await Bun.sleep(sleepFor);
+    await setTimeout(sleepFor);
 
-    const response = await fetch(ankiUrl, {
+    const response: any = await fetch(ankiUrl, {
       body: JSON.stringify({
         action: 'addNote',
         version: 6,
@@ -114,7 +114,7 @@ const load = async ({
       console.log(`✅ "${note.front} – ${note.back}" [${i + 1}/${toTranslate.length}]`);
     }
 
-    await Bun.sleep(sleepFor);
+    await setTimeout(sleepFor);
   }
 
   console.log(
@@ -123,8 +123,8 @@ const load = async ({
     }`,
   );
 
-  await Bun.write(Bun.file('./assets/failed.txt'), failedTranslations.join('\n'));
-  await Bun.write(Bun.file(filePath), '');
+  await writeFile('./assets/failed.txt', failedTranslations.join('\n'));
+  await writeFile(filePath, '');
 };
 
 const argumentsFor: Record<
@@ -145,7 +145,7 @@ const argumentsFor: Record<
   },
 } as const;
 
-const chosenLanguage = Bun.argv.at(2);
+const chosenLanguage = process.argv.at(2);
 
 if (!chosenLanguage || !Object.keys(argumentsFor).includes(chosenLanguage)) {
   console.log(
