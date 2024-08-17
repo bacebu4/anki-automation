@@ -63,58 +63,26 @@ const load = async ({
         ? {
             back: singleToTranslate,
             front: translated,
-            audioUrl: googleTTS.getAudioUrl(singleToTranslate, {
-              lang: fromLanguage,
-              slow: false,
-              host: 'https://translate.google.com',
-            }),
+            audioUrl: googleTTS.getAudioUrl(singleToTranslate, { lang: fromLanguage }),
           }
         : audioFor === 'to'
         ? {
             back: translated,
             front: singleToTranslate,
-            audioUrl: googleTTS.getAudioUrl(translated, {
-              lang: toLanguage,
-              slow: false,
-              host: 'https://translate.google.com',
-            }),
+            audioUrl: googleTTS.getAudioUrl(translated, { lang: toLanguage }),
           }
-        : {
-            back: translated,
-            front: singleToTranslate,
-          };
+        : { back: translated, front: singleToTranslate };
 
-    const backInLatin = preslovi(note.back, '', 'Cyrl');
+    if (fromLanguage === 'sr' || toLanguage === 'sr') {
+      note.back = preslovi(note.back, '', 'Cyrl');
+    }
 
     console.log(`⏳ "${singleToTranslate}" –-> "${translated}" ...`);
-
-    await setTimeout(sleepFor);
 
     let response: { error?: unknown } = {};
 
     if (!dryRun) {
-      response = await fetch(ankiUrl, {
-        body: JSON.stringify({
-          action: 'addNote',
-          version: 6,
-          params: {
-            note: {
-              deckName,
-              modelName: 'Basic (and reversed card)',
-              fields: {
-                Front: note.front,
-                Back: backInLatin,
-              },
-              audio: {
-                url: note.audioUrl,
-                filename: backInLatin,
-                fields: ['Back'],
-              },
-            },
-          },
-        }),
-        method: 'POST',
-      }).then(r => r.json());
+      response = await addNote({ ankiUrl, deckName, note });
     }
 
     if (response.error) {
@@ -138,10 +106,47 @@ const load = async ({
   );
 
   await writeFile('./assets/failed.txt', failedTranslations.join('\n'));
+
   if (!dryRun) {
+    // empty input file
     await writeFile(filePath, '');
   }
 };
+
+async function addNote({
+  ankiUrl,
+  deckName,
+  note,
+}: {
+  ankiUrl: string;
+  deckName: string;
+  note: { front: string; back: string; audioUrl?: string };
+}) {
+  return await fetch(ankiUrl, {
+    body: JSON.stringify({
+      action: 'addNote',
+      version: 6,
+      params: {
+        note: {
+          deckName,
+          modelName: 'Basic (and reversed card)',
+          fields: {
+            Front: note.front,
+            Back: note.back,
+          },
+          ...(note.audioUrl && {
+            audio: {
+              url: note.audioUrl,
+              filename: note.back,
+              fields: ['Back'],
+            },
+          }),
+        },
+      },
+    }),
+    method: 'POST',
+  }).then(r => r.json());
+}
 
 const argumentsFor: Record<
   string,
