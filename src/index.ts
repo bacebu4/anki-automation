@@ -12,15 +12,20 @@ const load = async ({
   ankiUrl,
   deckName,
   sleepFor,
+  dryRun,
 }: {
   filePath: string;
   fromLanguage: string;
   toLanguage: string;
-  audioFor: 'from' | 'to';
+  audioFor: 'from' | 'to' | 'nothing';
   ankiUrl: string;
   deckName: string;
   sleepFor: number;
+  dryRun: boolean;
 }) => {
+  if (dryRun) {
+    console.log(`🚧 Running in dry mode...`);
+  }
   const ankiHealthCheck = await fetch(ankiUrl, { method: 'GET' })
     .then(r => r.text())
     .catch(() => '');
@@ -64,7 +69,8 @@ const load = async ({
               host: 'https://translate.google.com',
             }),
           }
-        : {
+        : audioFor === 'to'
+        ? {
             back: translated,
             front: singleToTranslate,
             audioUrl: googleTTS.getAudioUrl(translated, {
@@ -72,6 +78,10 @@ const load = async ({
               slow: false,
               host: 'https://translate.google.com',
             }),
+          }
+        : {
+            back: translated,
+            front: singleToTranslate,
           };
 
     const backInLatin = preslovi(note.back, '', 'Cyrl');
@@ -80,28 +90,32 @@ const load = async ({
 
     await setTimeout(sleepFor);
 
-    const response: any = await fetch(ankiUrl, {
-      body: JSON.stringify({
-        action: 'addNote',
-        version: 6,
-        params: {
-          note: {
-            deckName,
-            modelName: 'Basic (and reversed card)',
-            fields: {
-              Front: note.front,
-              Back: backInLatin,
-            },
-            audio: {
-              url: note.audioUrl,
-              filename: backInLatin,
-              fields: ['Back'],
+    let response: { error?: unknown } = {};
+
+    if (!dryRun) {
+      response = await fetch(ankiUrl, {
+        body: JSON.stringify({
+          action: 'addNote',
+          version: 6,
+          params: {
+            note: {
+              deckName,
+              modelName: 'Basic (and reversed card)',
+              fields: {
+                Front: note.front,
+                Back: backInLatin,
+              },
+              audio: {
+                url: note.audioUrl,
+                filename: backInLatin,
+                fields: ['Back'],
+              },
             },
           },
-        },
-      }),
-      method: 'POST',
-    }).then(r => r.json());
+        }),
+        method: 'POST',
+      }).then(r => r.json());
+    }
 
     if (response.error) {
       console.log(
@@ -124,24 +138,38 @@ const load = async ({
   );
 
   await writeFile('./assets/failed.txt', failedTranslations.join('\n'));
-  await writeFile(filePath, '');
+  if (!dryRun) {
+    await writeFile(filePath, '');
+  }
 };
 
 const argumentsFor: Record<
   string,
-  Pick<Parameters<typeof load>[number], 'fromLanguage' | 'toLanguage' | 'audioFor' | 'filePath'>
+  Pick<
+    Parameters<typeof load>[number],
+    'fromLanguage' | 'toLanguage' | 'audioFor' | 'filePath' | 'deckName'
+  >
 > = {
   sr: {
     fromLanguage: 'sr',
     toLanguage: 'ru',
     audioFor: 'from',
     filePath: './assets/sr.txt',
+    deckName: 'Own Serbian',
   },
   ru: {
     fromLanguage: 'ru',
     toLanguage: 'sr',
     audioFor: 'to',
     filePath: './assets/ru.txt',
+    deckName: 'Own Serbian',
+  },
+  en: {
+    fromLanguage: 'en',
+    toLanguage: 'ru',
+    audioFor: 'nothing',
+    filePath: './assets/en.txt',
+    deckName: 'Unknown English',
   },
 } as const;
 
@@ -161,6 +189,6 @@ if (!chosenLanguage || !Object.keys(argumentsFor).includes(chosenLanguage)) {
 load({
   ...argumentsFor[chosenLanguage],
   ankiUrl: 'http://127.0.0.1:8765',
-  deckName: 'Own Serbian',
   sleepFor: 500,
+  dryRun: false,
 });

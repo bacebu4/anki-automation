@@ -9,7 +9,7 @@ bun install
 To run:
 
 ```bash
-bun run index.ts < ru | sr >
+bun run index.ts < ru | sr | en >
 ```
 
 ## What Is It?
@@ -24,7 +24,7 @@ This is script for automatically creating Anki cards. The script does the follow
 ## How to Use
 
 1. Launch Anki
-2. Install AnkiConnect
+2. Install AnkiConnect (Code: 2055492159)
 3. Adjust configuration of `load` function
 4. Fill in words in input file separated by new line (whether in `./assets/ru.txt` or in `./assets/sr.txt`)
 5. Run script with needed param. If `ru` passed, then `./assets/ru.txt` will be parsed. The same principle with `sr`
