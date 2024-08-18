@@ -22,9 +22,13 @@ export const parseXlsx = async ({
     })
     .filter(v => v !== null);
 
-  const grouped = asArray.reduce((acc: Record<string, unknown>, val) => {
-    return { ...acc, [val.column]: { ...(acc[val.column] || {}), [val.name]: val.value } };
-  }, {});
+  const grouped = asArray.reduce(
+    (acc: Record<string, unknown>, val) => ({
+      ...acc,
+      [val.column]: { ...(acc[val.column] || {}), [val.name]: val.value },
+    }),
+    {},
+  );
 
   const languageFor = new Map([
     ['Russian', 'ru'],
