@@ -3,6 +3,7 @@ import preslovi from '@pionir/preslovljivac';
 import { readFile, writeFile } from 'fs/promises';
 import * as googleTTS from 'google-tts-api';
 import { setTimeout } from 'node:timers/promises';
+import { addNote } from './api';
 
 const load = async ({
   filePath,
@@ -26,6 +27,7 @@ const load = async ({
   if (dryRun) {
     console.log(`🚧 Running in dry mode...`);
   }
+
   const ankiHealthCheck = await fetch(ankiUrl, { method: 'GET' })
     .then(r => r.text())
     .catch(() => '');
@@ -112,41 +114,6 @@ const load = async ({
     await writeFile(filePath, '');
   }
 };
-
-async function addNote({
-  ankiUrl,
-  deckName,
-  note,
-}: {
-  ankiUrl: string;
-  deckName: string;
-  note: { front: string; back: string; audioUrl?: string };
-}) {
-  return await fetch(ankiUrl, {
-    body: JSON.stringify({
-      action: 'addNote',
-      version: 6,
-      params: {
-        note: {
-          deckName,
-          modelName: 'Basic (and reversed card)',
-          fields: {
-            Front: note.front,
-            Back: note.back,
-          },
-          ...(note.audioUrl && {
-            audio: {
-              url: note.audioUrl,
-              filename: note.back,
-              fields: ['Back'],
-            },
-          }),
-        },
-      },
-    }),
-    method: 'POST',
-  }).then(r => r.json());
-}
 
 const argumentsFor: Record<
   string,
