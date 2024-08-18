@@ -42,54 +42,38 @@ const load = async ({
     process.exit(1);
   }
 
-  const toTranslate = content
+  const fromValues = content
     .split('\n')
     .map(l => l.trim().toLowerCase())
     .filter(Boolean);
 
+  const payloads: {
+    fromValue: string;
+    toValue: string;
+    fromLanguage: string;
+    toLanguage: string;
+  }[] = [];
+
+  for (const fromValue of fromValues) {
+    const toValue = await jsGoogleTranslateFree.translate(fromLanguage, toLanguage, fromValue);
+    payloads.push({ fromValue, toValue, fromLanguage, toLanguage });
+  }
+
   const failedTranslations: string[] = [];
 
-  for (let i = 0; i < toTranslate.length; i += 1) {
-    const singleToTranslate = toTranslate[i];
+  for (let i = 0; i < payloads.length; i += 1) {
+    const result = await doLoad({
+      ...payloads[i],
+      ankiUrl,
+      audioFor,
+      deckName,
+      dryRun,
+      i,
+      length: payloads.length,
+    });
 
-    const translated = await jsGoogleTranslateFree.translate(
-      fromLanguage,
-      toLanguage,
-      singleToTranslate,
-    );
-
-    const note =
-      audioFor === 'from'
-        ? {
-            back: singleToTranslate,
-            front: translated,
-            audioUrl: googleTTS.getAudioUrl(singleToTranslate, { lang: fromLanguage }),
-          }
-        : audioFor === 'to'
-        ? {
-            back: translated,
-            front: singleToTranslate,
-            audioUrl: googleTTS.getAudioUrl(translated, { lang: toLanguage }),
-          }
-        : { back: translated, front: singleToTranslate };
-
-    if (fromLanguage === 'sr' || toLanguage === 'sr') {
-      note.back = preslovi(note.back, '', 'Cyrl');
-    }
-
-    console.log(`⏳ "${singleToTranslate}" –-> "${translated}" ...`);
-
-    let response: { error?: unknown } = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
-
-    if (response.error) {
-      console.log(
-        `❌ Failed "${note.front} – ${note.back}". ${response.error || ''} [${i + 1}/${
-          toTranslate.length
-        }]`,
-      );
-      failedTranslations.push(singleToTranslate);
-    } else {
-      console.log(`✅ "${note.front} – ${note.back}" [${i + 1}/${toTranslate.length}]`);
+    if (result.failed) {
+      failedTranslations.push(payloads[i].fromValue);
     }
 
     await setTimeout(sleepFor);
@@ -109,6 +93,64 @@ const load = async ({
     // empty input file
     await writeFile(filePath, '');
   }
+};
+
+const doLoad = async ({
+  fromLanguage,
+  toLanguage,
+  audioFor,
+  ankiUrl,
+  deckName,
+  fromValue,
+  toValue,
+  dryRun,
+  i,
+  length,
+}: {
+  fromLanguage: string;
+  fromValue: string;
+  toLanguage: string;
+  toValue: string;
+  audioFor: 'from' | 'to' | 'nothing';
+  ankiUrl: string;
+  deckName: string;
+  dryRun: boolean;
+  i: number;
+  length: number;
+}) => {
+  const note =
+    audioFor === 'from'
+      ? {
+          back: fromValue,
+          front: toValue,
+          audioUrl: googleTTS.getAudioUrl(fromValue, { lang: fromLanguage }),
+        }
+      : audioFor === 'to'
+      ? {
+          back: toValue,
+          front: fromValue,
+          audioUrl: googleTTS.getAudioUrl(toValue, { lang: toLanguage }),
+        }
+      : { back: toValue, front: fromValue };
+
+  if (fromLanguage === 'sr' || toLanguage === 'sr') {
+    note.back = preslovi(note.back, '', 'Cyrl');
+  }
+
+  console.log(`⏳ "${fromValue}" –-> "${toValue}" ...`);
+
+  let response: { error?: unknown } = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
+
+  if (response.error) {
+    console.log(
+      `❌ Failed "${note.front} – ${note.back}". ${response.error || ''} [${i + 1}/${length}]`,
+    );
+    return { failed: fromValue };
+  }
+
+  console.log(`✅ "${note.front} – ${note.back}" [${i + 1}/${length}]`);
+
+  return {};
 };
 
 const argumentsFor: Record<
