@@ -6,7 +6,7 @@ export async function addNote({
   ankiUrl: string;
   deckName: string;
   note: { front: string; back: string; audioUrl?: string };
-}) {
+}): Promise<{ error?: unknown }> {
   return await fetch(ankiUrl, {
     body: JSON.stringify({
       action: 'addNote',
@@ -29,6 +29,13 @@ export async function addNote({
         },
       },
     }),
+    method: 'POST',
+  }).then(r => r.json());
+}
+
+export async function sync({ ankiUrl }: { ankiUrl: string }): Promise<{ error?: unknown }> {
+  return await fetch(ankiUrl, {
+    body: JSON.stringify({ action: 'sync', version: 6 }),
     method: 'POST',
   }).then(r => r.json());
 }

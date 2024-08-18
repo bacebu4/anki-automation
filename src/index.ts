@@ -3,7 +3,7 @@ import preslovi from '@pionir/preslovljivac';
 import { readFile, writeFile } from 'fs/promises';
 import * as googleTTS from 'google-tts-api';
 import { setTimeout } from 'node:timers/promises';
-import { addNote } from './api';
+import { addNote, sync } from './api';
 
 const load = async ({
   filePath,
@@ -81,11 +81,7 @@ const load = async ({
 
     console.log(`⏳ "${singleToTranslate}" –-> "${translated}" ...`);
 
-    let response: { error?: unknown } = {};
-
-    if (!dryRun) {
-      response = await addNote({ ankiUrl, deckName, note });
-    }
+    let response: { error?: unknown } = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
 
     if (response.error) {
       console.log(
@@ -100,6 +96,8 @@ const load = async ({
 
     await setTimeout(sleepFor);
   }
+
+  await sync({ ankiUrl });
 
   console.log(
     `✨ Operation completed. ${
@@ -162,5 +160,5 @@ load({
   ...argumentsFor[chosenLanguage],
   ankiUrl: 'http://127.0.0.1:8765',
   sleepFor: 500,
-  dryRun: false,
+  dryRun: true,
 });
