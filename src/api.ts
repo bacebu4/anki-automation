@@ -39,3 +39,19 @@ export async function sync({ ankiUrl }: { ankiUrl: string }): Promise<{ error?: 
     method: 'POST',
   }).then(r => r.json());
 }
+
+export async function healthcheck({
+  ankiUrl,
+}: {
+  ankiUrl: string;
+}): Promise<{ isHealthy: boolean }> {
+  const result = await fetch(ankiUrl, { method: 'GET' })
+    .then(r => r.text())
+    .catch(() => '');
+
+  if (result !== 'AnkiConnect v.6') {
+    return { isHealthy: false };
+  }
+
+  return { isHealthy: true };
+}

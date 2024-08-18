@@ -3,7 +3,7 @@ import preslovi from '@pionir/preslovljivac';
 import { readFile, writeFile } from 'fs/promises';
 import * as googleTTS from 'google-tts-api';
 import { setTimeout } from 'node:timers/promises';
-import { addNote, sync } from './api';
+import { addNote, healthcheck, sync } from './api';
 
 const load = async ({
   filePath,
@@ -28,11 +28,9 @@ const load = async ({
     console.log(`🚧 Running in dry mode...`);
   }
 
-  const ankiHealthCheck = await fetch(ankiUrl, { method: 'GET' })
-    .then(r => r.text())
-    .catch(() => '');
+  const { isHealthy } = await healthcheck({ ankiUrl });
 
-  if (ankiHealthCheck !== 'AnkiConnect v.6') {
+  if (!isHealthy) {
     console.log(`❌ Expected for AnkiConnect to be running at ${ankiUrl}. Exiting`);
     process.exit(1);
   }
