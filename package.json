@@ -11,7 +11,9 @@
   "dependencies": {
     "@kreisler/js-google-translate-free": "^2.1.0",
     "@pionir/preslovljivac": "^3.0.6",
-    "google-tts-api": "^2.0.2"
+    "@types/bun": "^1.1.6",
+    "google-tts-api": "^2.0.2",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "tsc --build . && node ./build/index.js",
