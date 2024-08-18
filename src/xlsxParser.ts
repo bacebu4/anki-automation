@@ -13,7 +13,7 @@ export const parseXlsx = async ({
     ['C', 'fromValue'],
     ['D', 'toValue'],
   ]);
-  const a = Object.entries(sheet)
+  const asArray = Object.entries(sheet)
     .map(([key, value]) => {
       const letter = key.slice(0, 1);
       const column = Number(key.slice(1));
@@ -22,7 +22,7 @@ export const parseXlsx = async ({
     })
     .filter(v => v !== null);
 
-  const grouped = a.reduce((acc: Record<string, unknown>, val) => {
+  const grouped = asArray.reduce((acc: Record<string, unknown>, val) => {
     return { ...acc, [val.column]: { ...(acc[val.column] || {}), [val.name]: val.value } };
   }, {});
 
