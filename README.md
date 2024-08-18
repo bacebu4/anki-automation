@@ -9,7 +9,7 @@ bun install
 To run:
 
 ```bash
-bun run index.ts < ru | sr | en >
+bun run loader.ts < ru | sr | en >
 ```
 
 ## What Is It?
