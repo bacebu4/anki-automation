@@ -1,11 +1,11 @@
 import * as XLSX from 'xlsx';
 
-console.log(XLSX);
-
-const parse = async (): Promise<
-  { fromLanguage: string; toLanguage: string; fromValue: string; toValue: string }[]
-> => {
-  const workbook = await XLSX.readFile('./assets/Saved translations.xlsx');
+export const parseXlsx = async ({
+  filePath,
+}: {
+  filePath: string;
+}): Promise<{ fromLanguage: string; toLanguage: string; fromValue: string; toValue: string }[]> => {
+  const workbook = await XLSX.readFile(filePath);
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const nameFor = new Map([
     ['A', 'fromLanguage'],
@@ -17,7 +17,6 @@ const parse = async (): Promise<
     .map(([key, value]) => {
       const letter = key.slice(0, 1);
       const column = Number(key.slice(1));
-      console.log({ letter });
       const name = nameFor.get(letter);
       return name && !Number.isNaN(column) ? { name, value: value.v, column } : null;
     })
@@ -27,8 +26,15 @@ const parse = async (): Promise<
     return { ...acc, [val.column]: { ...(acc[val.column] || {}), [val.name]: val.value } };
   }, {});
 
-  console.log(Object.values(grouped));
-  return Object.values(grouped);
-};
+  const languageFor = new Map([
+    ['Russian', 'ru'],
+    ['English', 'en'],
+    ['Serbian', 'sr'],
+  ]);
 
-parse();
+  return Object.values(grouped).map((v: any) => ({
+    ...v,
+    fromLanguage: languageFor.get(v.fromLanguage),
+    toLanguage: languageFor.get(v.toLanguage),
+  }));
+};
