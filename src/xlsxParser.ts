@@ -34,6 +34,7 @@ export const parseXlsx = async ({
     ['Russian', 'ru'],
     ['English', 'en'],
     ['Serbian', 'sr'],
+    ['Croatian', 'sr'],
   ]);
 
   return Object.values(grouped).map((v: any) => ({
