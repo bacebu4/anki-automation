@@ -4,7 +4,7 @@ import { setTimeout } from 'node:timers/promises';
 import { addNote, healthcheck, sync } from './api';
 
 const AUDIO_FOR_LANGUAGE = 'sr';
-const SLEEP_FOR = 500;
+const SLEEP_FOR = 100;
 
 export const load = async ({
   ankiUrl,
@@ -28,7 +28,7 @@ export const load = async ({
     process.exit(1);
   }
 
-  const failedTranslations: string[] = [];
+  const failedTranslations: string[] = ['foo', 'bar'];
 
   for (let i = 0; i < payloads.length; i += 1) {
     const result = await doLoad({
@@ -49,8 +49,10 @@ export const load = async ({
   await sync({ ankiUrl });
 
   console.log(`✨ Operation completed.`);
-  console.log(`😔 Failed translations:`);
-  console.log(failedTranslations.join('\n'));
+  if (failedTranslations.length) {
+    console.log(`😔 Failed translations:`);
+    console.log(failedTranslations.map(t => ` •  ${t}`).join('\n'));
+  }
 };
 
 const doLoad = async ({
