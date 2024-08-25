@@ -28,7 +28,7 @@ export const load = async ({
     process.exit(1);
   }
 
-  const failedTranslations: string[] = ['foo', 'bar'];
+  const failedTranslations: string[] = [];
 
   for (let i = 0; i < payloads.length; i += 1) {
     const result = await doLoad({
