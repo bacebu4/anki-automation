@@ -66,9 +66,8 @@ const run = async ({
     }
     payloads.push({
       fromValue: wrapWithFurigana(furiganaHtml),
-      fromLanguage: 'jp',
       toValue,
-      toLanguage: 'en',
+      deckName: 'JPM',
       audioUrl,
       label: fromValue,
     });
@@ -77,7 +76,7 @@ const run = async ({
   await load({
     ankiUrl,
     dryRun,
-    payloads: payloads.map(p => ({ ...p, deckName: 'JPM' })),
+    payloads,
   });
 };
 

@@ -10,8 +10,6 @@ export const load = async ({
   payloads: {
     fromValue: string;
     toValue: string;
-    fromLanguage: string;
-    toLanguage: string;
     deckName: string;
     audioUrl?: string;
     label?: string;
@@ -36,7 +34,7 @@ export const load = async ({
     });
 
     if (result.failed) {
-      failedTranslations.push(payloads[i].fromValue);
+      failedTranslations.push(payloads[i].label ?? payloads[i].fromValue);
     }
   }
 
