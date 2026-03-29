@@ -55,13 +55,15 @@ const run = async ({
   for (let i = 0; i < lines.length; i++) {
     const { fromValue, toValue } = lines[i];
     const tag = `[${i + 1}/${lines.length}] "${fromValue}"`;
-    console.log(`\n${tag}`);
-    console.log(`  ⏳ Generating furigana...`);
     const furiganaHtml = await toFuriganaHtml(fromValue);
-    console.log(`  ⏳ Generating audio...`);
-    const audioUrl = await getJapaneseTtsUrl(fromValue);
-    console.log(`  ⏳ Audio ready: ${audioUrl}`);
-    await setTimeout(1_000);
+    let audioUrl: string | undefined;
+    if (!dryRun) {
+      console.log(`\n${tag}`);
+      console.log(`  ⏳ Generating audio...`);
+      audioUrl = await getJapaneseTtsUrl(fromValue);
+      console.log(`  ⏳ Audio ready: ${audioUrl}`);
+      await setTimeout(1_000);
+    }
     payloads.push({
       fromValue: wrapWithFurigana(furiganaHtml),
       fromLanguage: 'jp',
