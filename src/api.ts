@@ -46,10 +46,10 @@ export async function healthcheck({
   ankiUrl: string;
 }): Promise<{ isHealthy: boolean }> {
   const result = await fetch(ankiUrl, { method: 'GET' })
-    .then(r => r.text())
+    .then(r => r.json())
     .catch(() => '');
 
-  if (result !== 'AnkiConnect v.6') {
+  if (result.apiVersion !== 'AnkiConnect v.6') {
     return { isHealthy: false };
   }
 

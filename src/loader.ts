@@ -1,10 +1,4 @@
-import preslovi from '@pionir/preslovljivac';
-import * as googleTTS from 'google-tts-api';
-import { setTimeout } from 'node:timers/promises';
 import { addNote, healthcheck, sync } from './api';
-
-const AUDIO_FOR_LANGUAGE = 'sr';
-const SLEEP_FOR = 100;
 
 export const load = async ({
   ankiUrl,
@@ -19,6 +13,7 @@ export const load = async ({
     fromLanguage: string;
     toLanguage: string;
     deckName: string;
+    audioUrl?: string;
   }[];
 }) => {
   const { isHealthy } = await healthcheck({ ankiUrl });
@@ -42,8 +37,6 @@ export const load = async ({
     if (result.failed) {
       failedTranslations.push(payloads[i].fromValue);
     }
-
-    await setTimeout(SLEEP_FOR);
   }
 
   await sync({ ankiUrl });
@@ -56,8 +49,6 @@ export const load = async ({
 };
 
 const doLoad = async ({
-  fromLanguage,
-  toLanguage,
   ankiUrl,
   deckName,
   fromValue,
@@ -65,35 +56,18 @@ const doLoad = async ({
   dryRun,
   i,
   length,
+  audioUrl,
 }: {
-  fromLanguage: string;
   fromValue: string;
-  toLanguage: string;
   toValue: string;
   ankiUrl: string;
   deckName: string;
   dryRun: boolean;
   i: number;
   length: number;
+  audioUrl?: string;
 }) => {
-  const note =
-    AUDIO_FOR_LANGUAGE === fromLanguage
-      ? {
-          back: fromValue,
-          front: toValue,
-          audioUrl: googleTTS.getAudioUrl(fromValue, { lang: fromLanguage }),
-        }
-      : AUDIO_FOR_LANGUAGE === toLanguage
-      ? {
-          back: toValue,
-          front: fromValue,
-          audioUrl: googleTTS.getAudioUrl(toValue, { lang: toLanguage }),
-        }
-      : { back: toValue, front: fromValue };
-
-  if (fromLanguage === 'sr' || toLanguage === 'sr') {
-    note.back = preslovi(note.back, '', 'Cyrl');
-  }
+  const note = { front: fromValue, back: toValue, audioUrl };
 
   console.log(`⏳ "${fromValue}" –-> "${toValue}" for deck "${deckName}" ...`);
 
@@ -106,7 +80,9 @@ const doLoad = async ({
     return { failed: fromValue };
   }
 
-  console.log(`✅ "${note.front} – ${note.back}" [${i + 1}/${length}]`);
+  console.log(
+    `✅ "${note.front} – ${note.back}" (audio url: ${note.audioUrl}) [${i + 1}/${length}]`,
+  );
 
   return {};
 };

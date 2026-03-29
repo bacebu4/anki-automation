@@ -13,6 +13,8 @@
     "@pionir/preslovljivac": "^3.0.6",
     "@types/bun": "^1.1.6",
     "google-tts-api": "^2.0.2",
+    "kuroshiro": "^1.2.0",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {
