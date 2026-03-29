@@ -14,7 +14,7 @@ export async function addNote({
       params: {
         note: {
           deckName,
-          modelName: 'Basic (and reversed card)',
+          modelName: 'Basic',
           fields: {
             Front: note.front,
             Back: note.back,
@@ -23,7 +23,7 @@ export async function addNote({
             audio: {
               url: note.audioUrl,
               filename: note.back,
-              fields: ['Back'],
+              fields: ['Front'],
             },
           }),
         },

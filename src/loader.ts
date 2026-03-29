@@ -14,6 +14,7 @@ export const load = async ({
     toLanguage: string;
     deckName: string;
     audioUrl?: string;
+    label?: string;
   }[];
 }) => {
   const { isHealthy } = await healthcheck({ ankiUrl });
@@ -57,6 +58,7 @@ const doLoad = async ({
   i,
   length,
   audioUrl,
+  label,
 }: {
   fromValue: string;
   toValue: string;
@@ -66,23 +68,21 @@ const doLoad = async ({
   i: number;
   length: number;
   audioUrl?: string;
+  label?: string;
 }) => {
   const note = { front: fromValue, back: toValue, audioUrl };
+  const displayFront = label ?? fromValue;
 
-  console.log(`⏳ "${fromValue}" –-> "${toValue}" for deck "${deckName}" ...`);
+  console.log(`⏳ "${displayFront}" –-> "${toValue}" for deck "${deckName}" ...`);
 
-  let response: { error?: unknown } = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
+  const response: { error?: unknown } = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
 
   if (response.error) {
-    console.log(
-      `❌ Failed "${note.front} – ${note.back}". ${response.error || ''} [${i + 1}/${length}]`,
-    );
-    return { failed: fromValue };
+    console.log(`❌ Failed "${displayFront} – ${toValue}". ${response.error || ''} [${i + 1}/${length}]`);
+    return { failed: displayFront };
   }
 
-  console.log(
-    `✅ "${note.front} – ${note.back}" (audio url: ${note.audioUrl}) [${i + 1}/${length}]`,
-  );
+  console.log(`✅ "${displayFront} – ${toValue}" [${i + 1}/${length}]`);
 
   return {};
 };
