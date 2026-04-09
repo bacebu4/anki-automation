@@ -1,4 +1,4 @@
-import { addNote, healthcheck, sync } from './api';
+import { addNote, healthcheck, notesInfo, sync } from './api';
 
 export const load = async ({
   ankiUrl,
@@ -73,11 +73,21 @@ const doLoad = async ({
 
   console.log(`⏳ "${displayFront}" –-> "${toValue}" for deck "${deckName}" ...`);
 
-  const response: { error?: unknown } = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
+  const response = !dryRun ? await addNote({ ankiUrl, deckName, note }) : {};
 
   if (response.error) {
-    console.log(`❌ Failed "${displayFront} – ${toValue}". ${response.error || ''} [${i + 1}/${length}]`);
+    console.log(
+      `❌ Failed "${displayFront} – ${toValue}". ${response.error || ''} [${i + 1}/${length}]`,
+    );
     return { failed: displayFront };
+  }
+
+  if (audioUrl && response.result) {
+    const { front } = await notesInfo({ ankiUrl, noteId: response.result });
+    if (front.includes('Connection') || front.includes('ConnectionResetError')) {
+      console.log(`⚠️ "${displayFront} – ${toValue}" added but audio failed [${i + 1}/${length}]`);
+      return { failed: displayFront };
+    }
   }
 
   console.log(`✅ "${displayFront} – ${toValue}" [${i + 1}/${length}]`);

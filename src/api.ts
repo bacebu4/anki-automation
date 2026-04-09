@@ -6,7 +6,7 @@ export async function addNote({
   ankiUrl: string;
   deckName: string;
   note: { front: string; back: string; audioUrl?: string };
-}): Promise<{ error?: unknown }> {
+}): Promise<{ error?: unknown; result?: number }> {
   return await fetch(ankiUrl, {
     body: JSON.stringify({
       action: 'addNote',
@@ -31,6 +31,25 @@ export async function addNote({
     }),
     method: 'POST',
   }).then(r => r.json());
+}
+
+export async function notesInfo({
+  ankiUrl,
+  noteId,
+}: {
+  ankiUrl: string;
+  noteId: number;
+}): Promise<{ front: string }> {
+  const info = await fetch(ankiUrl, {
+    body: JSON.stringify({
+      action: 'notesInfo',
+      version: 6,
+      params: { notes: [noteId] },
+    }),
+    method: 'POST',
+  }).then(r => r.json());
+
+  return { front: info.result?.[0]?.fields?.Front?.value ?? '' };
 }
 
 export async function sync({ ankiUrl }: { ankiUrl: string }): Promise<{ error?: unknown }> {
