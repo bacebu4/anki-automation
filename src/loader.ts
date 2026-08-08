@@ -84,7 +84,11 @@ const doLoad = async ({
 
   if (audioUrl && response.result) {
     const { front } = await notesInfo({ ankiUrl, noteId: response.result });
-    if (front.includes('Connection') || front.includes('ConnectionResetError')) {
+    if (
+      front.includes('Connection') ||
+      front.includes('ConnectionResetError') ||
+      front.includes('_ssl.c')
+    ) {
       console.log(`⚠️ "${displayFront} – ${toValue}" added but audio failed [${i + 1}/${length}]`);
       return { failed: displayFront };
     }
