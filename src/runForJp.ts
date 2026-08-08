@@ -3,21 +3,7 @@ import { readFile } from 'fs/promises';
 import { initFurigana, toFuriganaHtml } from './furigana';
 import { getJapaneseTtsUrl } from './ttsmp3';
 import { setTimeout } from 'timers/promises';
-
-const FURIGANA_STYLE = `<style>
-rt { visibility: hidden; }
-rt.show { visibility: visible; }
-</style>`;
-
-const FURIGANA_SCRIPT = `<script>
-if (document.getElementById('answer')) {
-  document.querySelectorAll('rt').forEach(function(r) { r.classList.add('show'); });
-}
-</script>`;
-
-function wrapWithFurigana(rubyHtml: string): string {
-  return `${FURIGANA_STYLE}<div>${rubyHtml}</div>${FURIGANA_SCRIPT}`;
-}
+import { createHash } from 'crypto';
 
 const run = async ({
   filePath,
@@ -65,11 +51,22 @@ const run = async ({
       await setTimeout(1_000);
     }
     payloads.push({
-      fromValue: wrapWithFurigana(furiganaHtml),
+      fromValue,
       toValue,
       deckName: 'JPM',
       audioUrl,
       label: fromValue,
+      modelName: 'WaniKani OneSided',
+      audioField: 'Audio',
+      audioFilename: `jpm-${createHash('md5').update(fromValue).digest('hex').slice(0, 8)}.mp3`,
+      tags: [`jpm-${new Date().toISOString().slice(0, 10)}`],
+      fields: {
+        Word: fromValue,
+        Reading: furiganaHtml,
+        Meaning: toValue,
+        'Meaning explanation': '',
+        Audio: '',
+      },
     });
   }
 

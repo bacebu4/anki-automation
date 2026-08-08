@@ -5,7 +5,16 @@ export async function addNote({
 }: {
   ankiUrl: string;
   deckName: string;
-  note: { front: string; back: string; audioUrl?: string };
+  note: {
+    front: string;
+    back: string;
+    audioUrl?: string;
+    modelName?: string;
+    fields?: Record<string, string>;
+    audioField?: string;
+    audioFilename?: string;
+    tags?: string[];
+  };
 }): Promise<{ error?: unknown; result?: number }> {
   return await fetch(ankiUrl, {
     body: JSON.stringify({
@@ -14,16 +23,17 @@ export async function addNote({
       params: {
         note: {
           deckName,
-          modelName: 'Basic',
-          fields: {
+          modelName: note.modelName ?? 'Basic',
+          tags: note.tags ?? [],
+          fields: note.fields ?? {
             Front: note.front,
             Back: note.back,
           },
           ...(note.audioUrl && {
             audio: {
               url: note.audioUrl,
-              filename: note.back,
-              fields: ['Front'],
+              filename: note.audioFilename ?? note.back,
+              fields: [note.audioField ?? 'Front'],
             },
           }),
         },
@@ -36,9 +46,11 @@ export async function addNote({
 export async function notesInfo({
   ankiUrl,
   noteId,
+  field = 'Front',
 }: {
   ankiUrl: string;
   noteId: number;
+  field?: string;
 }): Promise<{ front: string }> {
   const info = await fetch(ankiUrl, {
     body: JSON.stringify({
@@ -49,7 +61,7 @@ export async function notesInfo({
     method: 'POST',
   }).then(r => r.json());
 
-  return { front: info.result?.[0]?.fields?.Front?.value ?? '' };
+  return { front: info.result?.[0]?.fields?.[field]?.value ?? '' };
 }
 
 export async function sync({ ankiUrl }: { ankiUrl: string }): Promise<{ error?: unknown }> {

@@ -13,6 +13,11 @@ export const load = async ({
     deckName: string;
     audioUrl?: string;
     label?: string;
+    modelName?: string;
+    fields?: Record<string, string>;
+    audioField?: string;
+    audioFilename?: string;
+    tags?: string[];
   }[];
 }) => {
   const { isHealthy } = await healthcheck({ ankiUrl });
@@ -57,6 +62,11 @@ const doLoad = async ({
   length,
   audioUrl,
   label,
+  modelName,
+  fields,
+  audioField,
+  audioFilename,
+  tags,
 }: {
   fromValue: string;
   toValue: string;
@@ -67,8 +77,13 @@ const doLoad = async ({
   length: number;
   audioUrl?: string;
   label?: string;
+  modelName?: string;
+  fields?: Record<string, string>;
+  audioField?: string;
+  audioFilename?: string;
+  tags?: string[];
 }) => {
-  const note = { front: fromValue, back: toValue, audioUrl };
+  const note = { front: fromValue, back: toValue, audioUrl, modelName, fields, audioField, audioFilename, tags };
   const displayFront = label ?? fromValue;
 
   console.log(`⏳ "${displayFront}" –-> "${toValue}" for deck "${deckName}" ...`);
@@ -83,7 +98,7 @@ const doLoad = async ({
   }
 
   if (audioUrl && response.result) {
-    const { front } = await notesInfo({ ankiUrl, noteId: response.result });
+    const { front } = await notesInfo({ ankiUrl, noteId: response.result, field: audioField });
     if (
       front.includes('Connection') ||
       front.includes('ConnectionResetError') ||
