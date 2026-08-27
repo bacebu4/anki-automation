@@ -64,6 +64,15 @@ export async function notesInfo({
   return { front: info.result?.[0]?.fields?.[field]?.value ?? '' };
 }
 
+export async function getTags({ ankiUrl }: { ankiUrl: string }): Promise<string[]> {
+  const res = await fetch(ankiUrl, {
+    body: JSON.stringify({ action: 'getTags', version: 6 }),
+    method: 'POST',
+  }).then(r => r.json());
+
+  return res.result ?? [];
+}
+
 export async function sync({ ankiUrl }: { ankiUrl: string }): Promise<{ error?: unknown }> {
   return await fetch(ankiUrl, {
     body: JSON.stringify({ action: 'sync', version: 6 }),

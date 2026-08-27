@@ -4,6 +4,16 @@ import { initFurigana, toFuriganaHtml } from './furigana';
 import { getJapaneseTtsUrl } from './ttsmp3';
 import { setTimeout } from 'timers/promises';
 import { createHash } from 'crypto';
+import { getTags } from './api';
+
+async function buildRunTag(ankiUrl: string): Promise<string> {
+  const prefix = `jpm-${new Date().toISOString().slice(0, 10)}-`;
+  const indexes = (await getTags({ ankiUrl }))
+    .filter(t => t.startsWith(prefix))
+    .map(t => Number(t.slice(prefix.length)))
+    .filter(Number.isFinite);
+  return `${prefix}${Math.max(0, ...indexes) + 1}`;
+}
 
 const run = async ({
   filePath,
@@ -28,6 +38,9 @@ const run = async ({
   console.log('⏳ Initializing furigana engine...');
   await initFurigana();
   console.log('✅ Furigana engine ready');
+
+  const runTag = await buildRunTag(ankiUrl);
+  console.log(`⏳ Tagging this run as "${runTag}"`);
 
   const lines = content
     .split('\n')
@@ -59,7 +72,7 @@ const run = async ({
       modelName: 'WaniKani OneSided',
       audioField: 'Audio',
       audioFilename: `jpm-${createHash('md5').update(fromValue).digest('hex').slice(0, 8)}.mp3`,
-      tags: [`jpm-${new Date().toISOString().slice(0, 10)}`],
+      tags: [runTag],
       fields: {
         Word: fromValue,
         Reading: furiganaHtml,
