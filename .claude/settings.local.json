@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm view:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''Name:'''', d.get\\(''''name''''\\)\\); print\\(''''Version:'''', d.get\\(''''version''''\\)\\); print\\(''''License:'''', d.get\\(''''license''''\\)\\); print\\(''''Dependencies:'''', list\\(d.get\\(''''dependencies'''',{}\\).keys\\(\\)\\)\\); print\\(''''Description:'''', d.get\\(''''description''''\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); keys=sorted\\(d.keys\\(\\)\\); print\\(''''Created:'''', d.get\\(''''created'''',''''N/A''''\\)\\); print\\(''''Modified:'''', d.get\\(''''modified'''',''''N/A''''\\)\\); versions=[k for k in keys if k not in \\(''''created'''',''''modified''''\\)]; print\\(''''Last 5 versions:''''\\); [print\\(f''''  {v}: {d[v]}''''\\) for v in versions[-5:]]\")",
+      "WebSearch",
+      "WebFetch(domain:ttsmp3.com)",
+      "Bash(curl -s 'https://ttsmp3.com/')",
+      "Bash(curl -s 'https://ttsmp3.com/js/main.js')",
+      "Bash(curl -s 'https://ttsmp3.com/text-to-speech/Japanese/')",
+      "Bash(curl:*)",
+      "Bash(bun run:*)"
+    ]
+  }
+}
