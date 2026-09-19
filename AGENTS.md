@@ -11,3 +11,5 @@ TypeScript + bun. Entry point: `src/runForJp.ts`. Anki writes go through `src/ap
 ## Decision records
 
 `decision-records/` holds numbered records of non-obvious choices: research done, options weighed, what was picked and why. Like ADRs but not limited to architecture. Read the relevant one before changing the thing it covers; add a new numbered file when you make a choice someone would otherwise re-research.
+
+Short form is DR / DRs.

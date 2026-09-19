@@ -173,3 +173,7 @@ dist
 
 tsconfig.tsbuildinfo
 build
+
+# Decision record 0002: vendored Seed-VC checkout (see vendor/seed-vc-mac.patch)
+vendor/seed-vc/
+assets/voices/tsukuyomi.*
