@@ -9,7 +9,7 @@ bun install
 To import Japanese cards:
 
 ```bash
-bun run ./src/runForJp
+bun run ./src/runForJp [path/to/file.txt]  # defaults to ./assets/jp.txt
 ```
 
 ## What Is It?

@@ -1,8 +1,7 @@
 import { load } from './loader';
 import { readFile } from 'fs/promises';
 import { initFurigana, toFuriganaHtml } from './furigana';
-import { getJapaneseTtsUrl } from './ttsmp3';
-import { setTimeout } from 'timers/promises';
+import { generateJapaneseTts } from './tts';
 import { createHash } from 'crypto';
 import { getTags } from './api';
 
@@ -55,23 +54,23 @@ const run = async ({
     const { fromValue, toValue } = lines[i];
     const tag = `[${i + 1}/${lines.length}] "${fromValue}"`;
     const furiganaHtml = await toFuriganaHtml(fromValue);
-    let audioUrl: string | undefined;
+    const audioFilename = `jpm-${createHash('md5').update(fromValue).digest('hex').slice(0, 8)}.mp3`;
+    let audioPath: string | undefined;
     if (!dryRun) {
       console.log(`\n${tag}`);
       console.log(`  ⏳ Generating audio...`);
-      audioUrl = await getJapaneseTtsUrl(fromValue);
-      console.log(`  ⏳ Audio ready: ${audioUrl}`);
-      await setTimeout(1_000);
+      audioPath = await generateJapaneseTts(fromValue, audioFilename);
+      console.log(`  ⏳ Audio ready: ${audioPath}`);
     }
     payloads.push({
       fromValue,
       toValue,
       deckName: 'JPM',
-      audioUrl,
+      audioPath,
       label: fromValue,
       modelName: 'WaniKani OneSided',
       audioField: 'Audio',
-      audioFilename: `jpm-${createHash('md5').update(fromValue).digest('hex').slice(0, 8)}.mp3`,
+      audioFilename,
       tags: [runTag],
       fields: {
         Word: fromValue,
@@ -95,5 +94,5 @@ const run = async ({
 run({
   ankiUrl: 'http://127.0.0.1:8765',
   dryRun: false,
-  filePath: './assets/jp.txt',
+  filePath: process.argv[2] ?? './assets/jp.txt',
 });

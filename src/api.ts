@@ -8,7 +8,7 @@ export async function addNote({
   note: {
     front: string;
     back: string;
-    audioUrl?: string;
+    audioPath?: string;
     modelName?: string;
     fields?: Record<string, string>;
     audioField?: string;
@@ -29,9 +29,9 @@ export async function addNote({
             Front: note.front,
             Back: note.back,
           },
-          ...(note.audioUrl && {
+          ...(note.audioPath && {
             audio: {
-              url: note.audioUrl,
+              path: note.audioPath,
               filename: note.audioFilename ?? note.back,
               fields: [note.audioField ?? 'Front'],
             },

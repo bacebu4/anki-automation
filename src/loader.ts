@@ -11,7 +11,7 @@ export const load = async ({
     fromValue: string;
     toValue: string;
     deckName: string;
-    audioUrl?: string;
+    audioPath?: string;
     label?: string;
     modelName?: string;
     fields?: Record<string, string>;
@@ -60,7 +60,7 @@ const doLoad = async ({
   dryRun,
   i,
   length,
-  audioUrl,
+  audioPath,
   label,
   modelName,
   fields,
@@ -75,7 +75,7 @@ const doLoad = async ({
   dryRun: boolean;
   i: number;
   length: number;
-  audioUrl?: string;
+  audioPath?: string;
   label?: string;
   modelName?: string;
   fields?: Record<string, string>;
@@ -83,7 +83,7 @@ const doLoad = async ({
   audioFilename?: string;
   tags?: string[];
 }) => {
-  const note = { front: fromValue, back: toValue, audioUrl, modelName, fields, audioField, audioFilename, tags };
+  const note = { front: fromValue, back: toValue, audioPath, modelName, fields, audioField, audioFilename, tags };
   const displayFront = label ?? fromValue;
 
   console.log(`⏳ "${displayFront}" –-> "${toValue}" for deck "${deckName}" ...`);
@@ -97,7 +97,7 @@ const doLoad = async ({
     return { failed: displayFront };
   }
 
-  if (audioUrl && response.result) {
+  if (audioPath && response.result) {
     const { front } = await notesInfo({ ankiUrl, noteId: response.result, field: audioField });
     if (
       front.includes('Connection') ||

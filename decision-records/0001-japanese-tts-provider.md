@@ -1,7 +1,7 @@
 # 0001 — Japanese sentence TTS provider
 
 Date: 2026-09-19
-Status: accepted (not yet implemented)
+Status: accepted, implemented 2026-09-19 (`src/tts.ts`)
 
 ## Context
 
@@ -87,7 +87,7 @@ naturalness with the reading reliability a flashcard needs.
 - HyperTTS: no free neural Japanese source; premium $5/mo or bring your own Azure/Google key.
 - "Local TTS for Japanese (VOICEVOX)" add-on: synthesizes at review time, desktop-only, no media files.
 
-## Implementation sketch (for when we do it)
+## Implementation
 
 1. `bun add msedge-tts`.
 2. Replace `getJapaneseTtsUrl` with a function that calls `toStream()` and writes
