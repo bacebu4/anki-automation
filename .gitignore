@@ -173,7 +173,3 @@ dist
 
 tsconfig.tsbuildinfo
 build
-
-Saved translations.xlsx
-# WaniKani API cache (personal progress)
-assets/wk-cache/

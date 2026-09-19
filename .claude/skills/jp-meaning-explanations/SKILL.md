@@ -1,6 +1,7 @@
 ---
 name: jp-meaning-explanations
-description: Backfill the "Meaning explanation" field for Japanese cards in the JPM Anki deck with grammar breakdowns. Use when the user asks to add meaning explanations, grammar explanations, or breakdowns for Japanese sentences/cards.
+description: Backfill the "Meaning explanation" field for Japanese cards in the JPM Anki deck with grammar breakdowns. Use when the user asks to add meaning explanations, grammar explanations, or breakdowns for Japanese sentences/cards, or runs /jp-meaning-explanations.
+argument-hint: "[jpm-YYYY-MM-DD-N | latest]"
 ---
 
 # Japanese Meaning Explanations
@@ -36,10 +37,12 @@ Actions used here:
 
 ## Finding the notes
 
+Slash-command argument: `$ARGUMENTS`.
+
 Every import run tags its notes with a batch tag: `jpm-<YYYY-MM-DD>-<run index>`, e.g. `jpm-2026-08-08-3` (older notes may have date-only tags like `jpm-2026-08-08`).
 
-- If the user names a tag, query it: `deck:JPM tag:jpm-2026-08-08-3`.
-- If the user says "the new ones" / "recently added" without a tag, find the latest batch tag: `getTags`, filter by the `jpm-` prefix, and pick the latest by parsing date and run index — sort numerically on the index, NOT as strings (a string sort puts `-10` before `-2`). Show which tag you picked.
+- If `$ARGUMENTS` is a tag (or the user names a tag in chat), query it: `deck:JPM tag:$ARGUMENTS`.
+- If `$ARGUMENTS` is empty, `latest`, or the user says "the new ones" / "recently added" without a tag, find the latest batch tag: `getTags`, filter by the `jpm-` prefix, and pick the latest by parsing date and run index — sort numerically on the index, NOT as strings (a string sort puts `-10` before `-2`). Show which tag you picked.
 - Last resort (no usable tags): note IDs are creation timestamps in ms, so the highest `noteId`s in `deck:JPM` are the newest notes. Don't use "empty Meaning explanation" alone to find new notes — deliberately skipped single-word notes stay empty forever, so old batches would match too.
 
 ## Which notes get an explanation

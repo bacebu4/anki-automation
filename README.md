@@ -6,28 +6,21 @@ To install dependencies:
 bun install
 ```
 
-To run for txt files:
+To import Japanese cards:
 
 ```bash
 bun run ./src/runForJp
 ```
 
-## TXT
+## What Is It?
 
-### What Is It?
-
-This is script for automatically creating Anki cards. The script does the following:
-
-1. Takes every line from the input file
-2. Translates this like into desired language
-3. Downloads from Google Translate the audio of how the line pronounced
-4. Creates cards in Anki with the original line, translation and audio of it
+Creates Anki cards in the **JPM** deck from `./assets/jp.txt`. Each line is `日本語/English meaning`. The script adds furigana, Japanese TTS audio, and a batch tag.
 
 ### How to Use
 
 1. Launch Anki
 2. Install AnkiConnect (Code: 2055492159)
-3. Fill in words in input file separated by new line (whether in `./assets/jp.txt`)
+3. Fill `./assets/jp.txt` with one `日本語/English meaning` pair per line
 
 ## Links
 

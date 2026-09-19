@@ -88,6 +88,8 @@ const run = async ({
     dryRun,
     payloads,
   });
+
+  console.log(`🏷️  Run tag: "${runTag}"`);
 };
 
 run({
